@@ -1,42 +1,35 @@
-
-name: "CodeQL"
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  schedule:
-    # Mondays at 13:17 UTC
-    - cron: '17 13 * * 1'
-
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'java' ]
-
+    runs-on: self-hosted
     steps:
-    - name: Checkout repository
+    - continue-on-error: true
+      name: Checkout repository
       uses: actions/checkout@v3
-
-    - name: setup JDK
+    - continue-on-error: true
+      name: setup JDK
       uses: actions/setup-java@v3
       with:
-        distribution: "temurin"
+        distribution: temurin
         java-version: 17
-
-    - name: Initialize CodeQL
+    - continue-on-error: true
+      name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
-
-    - name: build
-      run: ./mvnw --batch-mode --no-transfer-progress --show-version --settings .github/maven/settings.xml package
-
-    - name: Perform CodeQL Analysis
+    - continue-on-error: true
+      name: build
+      run: ./mvnw --batch-mode --no-transfer-progress --show-version --settings .github/maven/settings.xml
+        package
+    - continue-on-error: true
+      name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+        - java
+name: CodeQL
+on:
+  repository_dispatch:
+    types: trigger-ga___codeql-analysis.yml
